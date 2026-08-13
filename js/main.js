@@ -10,6 +10,7 @@
 // ---------------- 常量 ----------------
 const R = 1;                        // 地球半径（单位球）
 const LAUNCH = { lat: 39.1, lon: 111.8 };          // 发射阵地：五寨基地
+const DEMO_TARGET = { lat: 35.677219, lon: 139.747847, name: '东京' };  // 试玩目标（35°40'37.99"N / 139°44'52.25"E）
 const MAX_TARGETS = 1;              // 待打击目标数量（单一红点）
 const HIT_RADIUS = 2.0 * Math.PI / 180;   // 命中判定容差（角距 2°）
 const SCORE_PER_HIT = 100;          // 单次命中得分
@@ -254,14 +255,14 @@ function randomizeAim() {
 
 // 瞄准坐标 <-> 输入框
 function syncInputsFromAim() {
-  inpLon.value = aimLon.toFixed(1);
-  inpLat.value = aimLat.toFixed(1);
+  inpLon.value = aimLon.toFixed(4);
+  inpLat.value = aimLat.toFixed(4);
 }
 function applyInputToAim() {
   aimLon = THREE.MathUtils.clamp(parseFloat(inpLon.value) || 0, -180, 180);
   aimLat = THREE.MathUtils.clamp(parseFloat(inpLat.value) || 0, -90, 90);
-  inpLon.value = aimLon.toFixed(1);
-  inpLat.value = aimLat.toFixed(1);
+  inpLon.value = aimLon.toFixed(4);
+  inpLat.value = aimLat.toFixed(4);
 }
 
 // ---------------- 弹道计算 ----------------
@@ -543,6 +544,7 @@ function setStatus(text, cls) {
 }
 function setInputsEnabled(en) {
   btnRandom.disabled = !en;
+  btnDemo.disabled = !en;
   inpLon.disabled = !en;
   inpLat.disabled = !en;
 }
@@ -867,6 +869,18 @@ btnRandom.addEventListener('click', () => {
   ensureAudio();
   if (state !== State.READY) return;
   randomizeAim();           // 生成随机瞄准坐标（与红点大概率不一致，不会命中）
+});
+btnDemo.addEventListener('click', () => {
+  ensureAudio();
+  if (state !== State.READY) return;
+  // 试玩效果：红点目标与击打坐标均设为东京
+  const t = targets[0];
+  t.lat = DEMO_TARGET.lat; t.lon = DEMO_TARGET.lon;
+  updateMarkerPos(t);
+  aimLat = DEMO_TARGET.lat; aimLon = DEMO_TARGET.lon;
+  syncInputsFromAim();
+  setStatus('试玩目标已设定：' + DEMO_TARGET.name, 'warn');
+  beep(660, 0.1, 'square', 0.12);
 });
 inpLon.addEventListener('change', () => state === State.READY ? applyInputToAim() : syncInputsFromAim());
 inpLat.addEventListener('change', () => state === State.READY ? applyInputToAim() : syncInputsFromAim());
