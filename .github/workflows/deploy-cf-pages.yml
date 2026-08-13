@@ -1,5 +1,6 @@
 # 东风速递导弹 3C —— GitHub Actions 流水线
 # 推送 main 分支或手动触发时，将静态站点部署到 Cloudflare Pages
+# 项目不存在时会自动创建（无需手动到控制台建项目）
 #
 # 前置配置（仓库 Settings -> Secrets and variables -> Actions）：
 #   Secrets:
@@ -37,11 +38,16 @@ jobs:
           cp -r js dist/
           cp -r assets dist/
 
-      - name: 部署到 Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+      - name: 创建 Pages 项目（已存在则跳过）
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ${{ vars.CF_PAGES_PROJECT || 'dongfeng-express' }}
-          directory: dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          command: pages project create ${{ vars.CF_PAGES_PROJECT || 'dongfeng-express' }} --production-branch=main || true
+
+      - name: 部署到 Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=${{ vars.CF_PAGES_PROJECT || 'dongfeng-express' }} --branch=main
