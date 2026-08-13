@@ -14,6 +14,13 @@ name: Deploy to Cloudflare Pages
 on:
   push:
     branches: [main]
+    # 文档类改动不触发部署流水线
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - 'screenshot/**'
+      - 'LICENSE'
+      - '.gitignore'
   workflow_dispatch:
 
 concurrency:
