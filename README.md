@@ -7,6 +7,12 @@
 
 🎮 **在线试玩**：https://dongfeng-express.pages.dev/
 
+## 游戏截图
+
+![游戏截图 1](screenshot/1.png)
+
+![游戏截图 2](screenshot/2.png)
+
 ## 玩法规则
 
 1. 游戏开始时，地球上随机生成一个**待打击目标（红点）**，但其经纬度坐标对玩家**未知**；
