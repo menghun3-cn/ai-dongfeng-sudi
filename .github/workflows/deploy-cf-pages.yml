@@ -1,0 +1,47 @@
+# 东风速递导弹 3C —— GitHub Actions 流水线
+# 推送 main 分支或手动触发时，将静态站点部署到 Cloudflare Pages
+#
+# 前置配置（仓库 Settings -> Secrets and variables -> Actions）：
+#   Secrets:
+#     CLOUDFLARE_API_TOKEN  - Cloudflare API Token（权限：Cloudflare Pages:Edit）
+#     CLOUDFLARE_ACCOUNT_ID - Cloudflare 账户 ID
+#   Variables:
+#     CF_PAGES_PROJECT      - Cloudflare Pages 项目名（默认 dongfeng-express，可省略）
+
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: cf-pages-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: 部署到 Cloudflare Pages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 准备部署目录（仅拷贝运行所需文件，排除 node_modules 等非运行资源）
+        run: |
+          rm -rf dist
+          mkdir -p dist
+          cp index.html dist/
+          cp -r js dist/
+          cp -r assets dist/
+
+      - name: 部署到 Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ vars.CF_PAGES_PROJECT || 'dongfeng-express' }}
+          directory: dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

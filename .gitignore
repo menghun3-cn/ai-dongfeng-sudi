@@ -1,0 +1,17 @@
+# 依赖（three.js 已本地化为 js/three.min.js，运行不需要 node_modules）
+node_modules/
+
+# 临时产物（仅用于下载 three.js 与贴图的 npm 文件，运行不需要）
+package.json
+package-lock.json
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 编辑器
+.vscode/
+.idea/
+
+# 日志
+*.log
